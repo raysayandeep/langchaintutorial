@@ -35,3 +35,5 @@ chain = prompt | llm | output_parser
 
 if input_text:
     st.write(chain.invoke({'question': input_text}))
+    #st.write("You have entered:")
+    #st.write(input_text)
