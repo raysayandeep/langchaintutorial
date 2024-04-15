@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ['LANGCHAIN_API_KEY']=os.getenv("LANGCHAIN_API_KEY")
 
 app=FastAPI(
@@ -17,7 +18,7 @@ app=FastAPI(
 
 llm=Ollama(model="llama2")
 
-prompt1=ChatPromptTemplate.from_template("Write me an essey about {topic} with 50 words")
+prompt1=ChatPromptTemplate.from_template("Write me an poem about {topic} with 50 words")
 
 add_routes(
     app,
