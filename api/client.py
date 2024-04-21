@@ -10,8 +10,10 @@ def get_ollama_response(input_text):
 
 #streamlit
 
-st.title('Langchain Demo with Llama2 API')
+st.title('Langchain Demo with Llama3 API')
 input_text=st.text_input("Write an essay on")
 
 if input_text:
-    st.write(get_ollama_response(input_text))
+    with st.spinner("Generating Model Response:"):
+        st.write("Model Response:")
+        st.write(get_ollama_response(input_text))

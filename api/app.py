@@ -16,9 +16,9 @@ app=FastAPI(
     description="A simple web server"
 )
 
-llm=Ollama(model="llama2")
+llm=Ollama(model="llama3",stop=['<|eot_id|>'])
 
-prompt1=ChatPromptTemplate.from_template("Write me an poem about {topic} with 50 words")
+prompt1=ChatPromptTemplate.from_template("Write me an essay about {topic} with 200 words")
 
 add_routes(
     app,
