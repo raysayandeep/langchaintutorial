@@ -77,3 +77,8 @@ langserve
 fastapi
 uvicorn
 sse_starlette
+ipykernel
+pypdf
+chromadb
+boto3
+faiss-cpu
