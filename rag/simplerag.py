@@ -1,5 +1,7 @@
 from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PDFMinerLoader
+from langchain_community.document_loaders import AmazonTextractPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OllamaEmbeddings
@@ -12,20 +14,24 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from dotenv import load_dotenv
+import boto3
 import os
 load_dotenv()
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
 #loader = TextLoader("test.txt")
-loader = PyPDFLoader("research.pdf")
+#loader = PyPDFLoader("research.pdf")
+loader = PDFMinerLoader("research.pdf")
+#textract_client = boto3.client("textract", region_name="us-east-1")
+#loader = AmazonTextractPDFLoader("scansmpl.pdf",client=textract_client)
 #print(loader)
 text_documents = loader.load()
 #print(text_documents)
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=100)
 #text_splitter1 = CharacterTextSplitter(chunk_size=1000,chunk_overlap=200)
 documents = text_splitter.split_documents(text_documents)
 #documents1 = text_splitter1.split_documents(text_documents)
-#print(documents[:1])
+print(documents[:1])
 #print(documents1[:1])
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 #embeddings = OllamaEmbeddings(model="llama3")
@@ -33,9 +39,9 @@ embeddings = OllamaEmbeddings(model="nomic-embed-text")
 #embedded_data = embeddings.embed_query(documents)
 #print(embedded_data[:10])
 #vector_db = Chroma.from_documents(documents[:5],bedrockembeddings)
-vector_db = FAISS.from_documents(documents[:5],embeddings)
+vector_db = FAISS.from_documents(documents,embeddings)
 #print(type(vector_db))
-#query = "Who is the Author"
+query = "Provide a meaningful gist of the entire paper."
 #result = vector_db.similarity_search(query)
 #print(result[0].page_content)
 
@@ -44,7 +50,6 @@ llm=Ollama(model="Llama3",stop=['<|eot_id|>'])
 #bedrockllm=Bedrock(credentials_profile_name="default",region_name="us-east-1",model_id="amazon.titan-text-lite-v1")
 prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context.
                                           Think step by step before providing the detailed answer.
-                                          Provide answer in a json format.
                                           <context>
                                           {context}
                                           </context>
@@ -55,5 +60,5 @@ document_chain = create_stuff_documents_chain(llm,prompt)
 retriever = vector_db.as_retriever()
 #print(retriever)
 retrieval_chain = create_retrieval_chain(retriever,document_chain)
-result = retrieval_chain.invoke({"input":"What this document is about"})
+result = retrieval_chain.invoke({"input":query})
 print(result['answer'])
