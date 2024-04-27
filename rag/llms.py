@@ -5,8 +5,15 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_core.output_parsers import JsonOutputParser
 
-from faissvector import loadVectorDB
-from embeddings import initiateOllamaEmbedding
+from rag.faissvector import loadVectorDB
+from rag.embeddings import initiateOllamaEmbedding
+from rag.prompts import generatePrompt
+
+from dotenv import load_dotenv
+import os
+load_dotenv()
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
 
 def localLlama3():
     local_llama3=Ollama(model="Llama3",stop=['<|eot_id|>'])
@@ -27,18 +34,18 @@ if __name__ == '__main__':
     ollama_embedding = initiateOllamaEmbedding("nomic-embed-text")
     vector_data = loadVectorDB("DBIndex",ollama_embedding)
     llm = localLlama3()
-
-    prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context.
-                                          Think step by step before providing the detailed answer.
-                                          Provide the answer as a JSON with key and value pairs and no premable or explaination.
-                                          <context>
-                                          {context}
-                                          </context>
-                                          question: {input}
-                                          """)
-    
+    #llm = localLlama2()
+    #llm = bedrockLlm("default","us-east-1","amazon.titan-text-lite-v1")
+    prompt = generatePrompt()
     document_chain = create_stuff_documents_chain(llm,prompt,output_parser=JsonOutputParser())
+    print(document_chain)
+    print("\n------\n")
     retriever = vector_data.as_retriever()
+    docs = retriever.invoke(query)
+    print(docs)
+    print("\n------\n")
     retrieval_chain = create_retrieval_chain(retriever,document_chain)
-    result = retrieval_chain.invoke({"input":query})
-    print(result['answer']) 
+    print(retrieval_chain)
+    print("\n------\n")
+    result = retrieval_chain.invoke({"context":docs,"input":query})
+    print(result['answer'])

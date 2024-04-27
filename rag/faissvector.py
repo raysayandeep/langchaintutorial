@@ -1,13 +1,13 @@
 from langchain_community.vectorstores import FAISS
 
-from loaders import textPdfLoader, scanDocumentLoader, excelFileLoader
-from embeddings import initiateBedrockEmbedding, initiateOllamaEmbedding
+from rag.loaders import textPdfLoader, scanDocumentLoader, excelFileLoader
+from rag.embeddings import initiateBedrockEmbedding, initiateOllamaEmbedding
 
 import sys
 import boto3
 
 def createVectorDB(documents,embedding):
-    vector_db_index = FAISS.from_documents(documents,embedding)
+    vector_db_index = FAISS.from_documents(documents[:5],embedding)
     return vector_db_index
 
 def saveVectorDB(vector_db_index,savepath):

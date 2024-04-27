@@ -1,39 +1,42 @@
+from fastapi import FastAPI, UploadFile
+from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms import Ollama
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-
-import streamlit as st
+from langserve import add_routes
+import uvicorn
 import os
 from dotenv import load_dotenv
+from chain import get_chain
 
 load_dotenv()
-
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+os.environ['LANGCHAIN_API_KEY']=os.getenv("LANGCHAIN_API_KEY")
 
-
-# Prompt Template
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", "You are a helpful assistant. Please response to the queries"),
-        ("user", "Question:{question}")
-    ]
+app=FastAPI(
+    title="Langchain Server",
+    version="1.0",
+    description="A simple web server"
 )
 
-# Streamlit framework
+@app.post("/upload")
+def upload_file(file: UploadFile):
+    file_location = f"samplefiles/{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(file.file.read())
+    #return {"info": f"file '{file.filename}' saved at '{file_location}'"}
+    response = get_chain(file_location)
+    print(response)
+    os.remove(file_location)   
+    return response
 
-st.title('Langchain Demo with Llama2 API')
-input_text = st.text_input("Search the Topic you want")
+llm=Ollama(model="llama3",stop=['<|eot_id|>'])
 
-# OpenAI LLM
+prompt1=ChatPromptTemplate.from_template("Write me an essay about {topic} with 200 words")
 
-llm = Ollama(model="llama2")
-output_parser = StrOutputParser()
+add_routes(
+    app,
+    prompt1|llm,
+    path="/essey"
+)
 
-chain = prompt | llm | output_parser
-
-if input_text:
-    st.write(chain.invoke({'question': input_text}))
-    #st.write("You have entered:")
-    #st.write(input_text)
+if __name__=='__main__':
+    uvicorn.run(app,host='localhost',port=8000)

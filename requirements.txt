@@ -82,3 +82,4 @@ pypdf
 chromadb
 boto3
 faiss-cpu
+python-multipart
