@@ -15,7 +15,7 @@ def saveVectorDB(vector_db_index,savepath):
     return db
 
 def loadVectorDB(indexstore,embedding):
-    vector_db_index = FAISS.load_local(indexstore,embedding)
+    vector_db_index = FAISS.load_local(indexstore,embedding,allow_dangerous_deserialization="True")
     return vector_db_index 
 
 def saveVectorDBIncremental(vector_db_index,savepath,indexstore,embedding):
