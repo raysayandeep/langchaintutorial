@@ -6,9 +6,10 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain.schema.runnable import Runnable
 
 from rag.loaders import textPdfLoader
-from rag.embeddings import initiateOllamaEmbedding
+from rag.embeddings import initiateOllamaEmbedding, initiateBedrockEmbedding
 from rag.faissvector import createVectorDB
 from rag.llms import localLlama3
+from rag.llms import bedrockLlm
 from rag.prompts import generatePrompt
 
 def get_chain(file,query):
@@ -18,9 +19,12 @@ def get_chain(file,query):
     query = query
     documents = textPdfLoader(file)
     ollama_embedding = initiateOllamaEmbedding(modelname="nomic-embed-text")
-    db_index = createVectorDB(documents,ollama_embedding)
+    bedrock_embedding = initiateBedrockEmbedding("amazon.titan-embed-text-v1","default","us-east-1")
+    #db_index = createVectorDB(documents,ollama_embedding)
+    db_index = createVectorDB(documents,bedrock_embedding)
     prompt = generatePrompt()
-    model = localLlama3()
+    #model = localLlama3()
+    model = bedrockLlm("default","us-east-1","meta.llama3-8b-instruct-v1:0")
     document_chain = create_stuff_documents_chain(model,prompt,output_parser=JsonOutputParser())
     retriever = db_index.as_retriever()
     docs = retriever.invoke(query)

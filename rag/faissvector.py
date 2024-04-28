@@ -7,7 +7,7 @@ import sys
 import boto3
 
 def createVectorDB(documents,embedding):
-    vector_db_index = FAISS.from_documents(documents[:5],embedding)
+    vector_db_index = FAISS.from_documents(documents,embedding)
     return vector_db_index
 
 def saveVectorDB(vector_db_index,savepath):

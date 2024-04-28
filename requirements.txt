@@ -83,3 +83,4 @@ chromadb
 boto3
 faiss-cpu
 python-multipart
+pdfminer.six
