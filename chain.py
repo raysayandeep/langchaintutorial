@@ -11,10 +11,11 @@ from rag.faissvector import createVectorDB
 from rag.llms import localLlama3
 from rag.prompts import generatePrompt
 
-def get_chain(file):
+def get_chain(file,query):
     """Return a chain."""
 
-    query = "Who is/are the author of the document?"
+    #query = "Who is/are the author of the document?"
+    query = query
     documents = textPdfLoader(file)
     ollama_embedding = initiateOllamaEmbedding(modelname="nomic-embed-text")
     db_index = createVectorDB(documents,ollama_embedding)

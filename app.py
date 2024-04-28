@@ -18,12 +18,12 @@ app=FastAPI(
 )
 
 @app.post("/upload")
-def upload_file(file: UploadFile):
+def upload_file(file: UploadFile,query):
     file_location = f"samplefiles/{file.filename}"
     with open(file_location, "wb+") as file_object:
         file_object.write(file.file.read())
     #return {"info": f"file '{file.filename}' saved at '{file_location}'"}
-    response = get_chain(file_location)
+    response = get_chain(file_location,query)
     print(response)
     os.remove(file_location)   
     return response
