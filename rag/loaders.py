@@ -2,6 +2,7 @@ from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import PDFMinerLoader
 from langchain_community.document_loaders import AmazonTextractPDFLoader
+from langchain_community.document_loaders import UnstructuredExcelLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import boto3
 import sys
@@ -22,13 +23,19 @@ def textPdfLoader(file):
     return documents
 
 def excelFileLoader(file):
-    None
+    loader = UnstructuredExcelLoader(file,mode="elements")
+    text_documents = loader.load()
+    content = text_documents[0].page_content
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=100)
+    documents = text_splitter.split_documents(content)
+    return documents
+
 def textCsvFileLoader(file):
     None
 
 if __name__ == "__main__":
-    pdffile = sys.argv[1]
-    documents = textPdfLoader(pdffile)
-    print(documents[:1])
+    file = sys.argv[1]
+    documents = excelFileLoader(file)
+    print(documents)
     #documents = scanDocumentLoader("scansmpl.pdf","us-east-1")
     #print(documents[:1])
