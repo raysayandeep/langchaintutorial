@@ -3,11 +3,14 @@ from langchain_core.prompts import PromptTemplate
 
 def generatePrompt():
     jsontemplate = """
+    You are a research paer analyzer.
     Answer the following question based only on the provided context.
     Think step by step before providing the detailed answer.
-    Provide the answer as a JSON with key and value pairs and no premable or explaination.
+    Provide you answer with proper explanation.
+    <context>
     {context}
-    {input}
+    </context>
+    Question:{input}
     """
     prompt=ChatPromptTemplate.from_template(jsontemplate)
     return prompt
