@@ -49,8 +49,8 @@ query = "Who is/are the author of the document?"
 #print(result[0].page_content)
 
 #llm=Ollama(model="Llama2")
-llm=Ollama(model="Llama3",stop=['<|eot_id|>'])
-#bedrockllm=Bedrock(credentials_profile_name="default",region_name="us-east-1",model_id="amazon.titan-text-lite-v1")
+#llm=Ollama(model="Llama3",stop=['<|eot_id|>'])
+bedrockllm=Bedrock(credentials_profile_name="default",region_name="us-east-1",model_id="amazon.titan-text-lite-v1")
 prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context.
                                           Think step by step before providing the detailed answer.
                                           Provide the answer as a JSON with key and value pairs and no premable or explaination.
@@ -72,7 +72,7 @@ prompt1 = PromptTemplate(
     input_variables=["question", "document"],
 )
 
-document_chain = create_stuff_documents_chain(llm,prompt,output_parser=JsonOutputParser())
+document_chain = create_stuff_documents_chain(bedrockllm,prompt)#,output_parser=JsonOutputParser())
 retriever = vector_db.as_retriever()
 #docs = retriever.invoke(query)
 #print(docs)
@@ -81,4 +81,4 @@ retrieval_chain = create_retrieval_chain(retriever,document_chain)
 #retrieval_chain = prompt | llm | JsonOutputParser()
 #result = retrieval_chain.invoke({"input":query,"context":docs})
 result = retrieval_chain.invoke({"input":query})
-print(result['answer'])
+print(result)
